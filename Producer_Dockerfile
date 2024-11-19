@@ -1,0 +1,15 @@
+FROM python:3.10.0rc2
+
+EXPOSE 3000
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN  pip install --no-cache-dir -r requirements.txt
+
+COPY producer/main_weather_service.py /app/weather.py
+COPY grid/grid_point.py /app/grid/
+COPY location/location.py /app/location/
+
+CMD ["python", "weather.py"]

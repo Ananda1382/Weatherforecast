@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    container_name: zookeeper
+    ports:
+      - "2080:2080"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2080
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.2
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2080
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  producer:
+#    build:
+#      context: ./producer
+    image: weatherproducer:v2.0
+    container_name: weather_producer
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
+
+
+  consumer:
+#    build:
+#      context: ./consumer
+    image: weatherconsumer:v2.0
+    container_name: weather_consumer
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
